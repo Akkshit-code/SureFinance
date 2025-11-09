@@ -744,7 +744,7 @@ def parse_hdfc(text: str) -> Dict[str, Any]:
     """Parse HDFC Credit Card statement into structured fields."""
     fields: Dict[str, Any] = {
         "last4": "",
-        "statement_date": "",
+        # "statement_date": "",
         "billing_cycle_start": "",
         "billing_cycle_end": "",
         "payment_due_date": "",
