@@ -1,11 +1,18 @@
 # backend/app/main.py
 from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from app.parser.extractor import parse_pdf_bytes
 import uvicorn
 
 app = FastAPI(title="Credit Card Statement Parser")
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # You can restrict to ["http://localhost:5173"] later
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 @app.post("/parse")
 async def parse(file: UploadFile = File(...)):
     if not file.filename.lower().endswith(".pdf"):

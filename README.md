@@ -1,73 +1,147 @@
-# 🧾 Kotak Credit Card Statement Parser (Windows Setup)
-🧰 Prerequisites
+💳 Credit Card Statement Parser
 
-Python 3.10+ installed
-Tesseract OCR → Download
-→ Install to: C:\Program Files\Tesseract-OCR\tesseract.exe
-Poppler for Windows → Download
-→ Extract to: C:\Program Files\poppler-25.07.0\Library\bin
-Kotak credit card statement PDF file (e.g., kotakbank.pdf)
+A developer-friendly project that lets users upload PDF credit card statements (Kotak, ICICI, Axis, HDFC, SBI, etc.), extract structured financial data, and display results in a modern UI.
+It demonstrates PDF parsing → regex/heuristics → optional OCR → structured JSON output.
 
-# ⚙️ 1. Create & activate virtual environment
-cd C:\Users\Deepak Mahto\Downloads\sureassignement\backend
-python -m venv .venv
-.venv\Scripts\Activate.ps1
+🚀 Project Summary
 
-# 📦 2. Install dependencies
-pip install --upgrade pip
-pip install -r requirements.txt
+This project provides a clean and intuitive interface to:
+Upload a credit card statement (PDF)
+Send it to a FastAPI backend (/parse endpoint)
+Extract & display key details:
+Last 4 digits of card
+Statement date
+Billing cycle
+Payment due date
+Total balance & minimum due
+Transaction list
 
-(If you get missing package errors later, install manually:
-pip install fastapi uvicorn pypdf pdf2image pillow pytesseract python-multipart python-dateutil)
+🔧 Tech Stack
 
-# 🧠 3. Check tool paths in extractor.py
+Frontend
 
-Make sure these lines are correct:
+⚛️ React (Vite)
+🎨 Tailwind CSS
+💎 Lucide Icons (lucide-react)
+🌐 Axios (HTTP client)
 
-TESSERACT_PATH = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-POPLER_PATH = r"C:\Program Files\poppler-25.07.0\Library\bin"
+Backend (assumed)
+🚀 FastAPI (Python)
+📄 PDF parsing libraries
+pdfminer.six, PyMuPDF (fitz), or pdfplumber
+🔍 (Optional) OCR
+Tesseract / pytesseract or a cloud OCR API
+🗄️ (Optional) Database
+SQLite / PostgreSQL for storing parsed results
+Dev Tooling
+Node.js + npm / yarn / pnpm
+Vite (frontend build tool)
+FastAPI (backend framework)
 
-# 🚀 4. Run the backend
-uvicorn app.main:app --reload --port 8000
+📁 Project Flow & Architecture
+1️⃣ User selects PDF
+The user uploads or drags a credit card statement into the UI.
+2️⃣ Frontend sends file
+UploadForm constructs a FormData object and sends a POST request to:
+POST /parse
+Content-Type: multipart/form-data
+3️⃣ Backend receives file
+FastAPI:
+Saves or streams the PDF
+Extracts text via:
+PDF text parser
+OCR fallback if text extraction fails
+Normalizes text (clean spacing, currency, date formats)
+Uses regex / rules / ML-based parsing to extract fields and transactions
+4️⃣ Backend returns structured JSON
+Example:{
+"success": true,
+"bank": "HDFC",
+"fields": {
+"last4": "1234",
+"statement_date": "2025-10-31",
+"billing_cycle_start": "2025-10-01",
+"billing_cycle_end": "2025-10-31",
+"payment_due_date": "2025-11-15",
+"total_balance": "₹12,345.67",
+"minimum_due": "₹1,234.00",
+"transactions": [
+{ "date": "2025-10-05", "description": "Amazon IN", "amount": "1,599.00" },
+{ "date": "2025-10-12", "description": "Zomato", "amount": "349.00" }
+]
+}
+}
+5️⃣ Frontend displays parsed data
+The React app renders a clean ResultCard summarizing statement details and transaction tables.
+6️⃣ (Optional) Post-processing / Storage
+The backend may persist results, send notifications, or integrate with accounting systems.
 
+📦 File Structure
+src/
+main.jsx
+App.jsx
+index.css
+components/
+UploadForm.jsx
+ResultCard.jsx
+Button.jsx
+FileInput.jsx
 
-You’ll see:
+⚙️ Setup & Run (Frontend)
+🧩 Install dependencies
 
-🧠 Using Tesseract from: C:\Program Files\Tesseract-OCR\tesseract.exe
-INFO: Uvicorn running on http://127.0.0.1:8000
+# Using npm
 
-# 🌐 5. Test it
+npm install
 
-Open browser → http://localhost:8000/docs
+# or yarn
 
-Click POST /parse → Try it out
+yarn
 
-Upload your kotakbank.pdf
+# or pnpm
 
-Click Execute
+pnpm install
+🌍 Environment setup
+Create a .env file at the project root:
+VITE_API_BASE=http://127.0.0.1:8000
+🧠 Run development server
+npm run dev
 
-✅ You’ll see JSON output like:
+# or
 
-{
-  "success": true,
-  "bank": "KOTAK",
-  "fields": {
-    "last4": "8253",
-    "payment_due_date": "2025-11-07",
-    "total_balance": "2253.00"
-  }
+yarn dev
+
+# or
+
+pnpm dev
+
+🏗️ Build for production
+npm run build
+
+# Serve the /dist folder via your web server
+
+🛠️ Backend API Contract
+Endpoint:
+POST /parse
+
+Headers:
+Content-Type: multipart/form-data
+Form field:
+file — PDF statement file
+Response (Success):{
+"success": true,
+"bank": "Axis Bank",
+"fields": { ... }
+}
+Response (Error):{
+"success": false,
+"error": "Description of error"
 }
 
-# 🧩 6. Common fixes
-Issue	Fix
-uvicorn not recognized	Run pip install uvicorn
-No module named pypdf	Run pip install pypdf
-Form data requires python-multipart	Run pip install python-multipart
-Poppler not found	Fix POPLER_PATH
-Tesseract not found	Fix TESSERACT_PATH
-✅ Done!
-
-Your API runs at
-👉 http://localhost:8000/docs
-
-Upload a Kotak PDF and view extracted statement details.
+📈 Suggested Improvements (Roadmap)
+🧠 OCR fallback for scanned statements
+🤖 ML/NLP-based extraction for more robust detection
+🧾 CSV / Excel export of transactions
+🔐 User authentication + history dashboard
+🔄 Async job queue for long-running OCR/parsing
+🧪 Admin mode for debugging regex extraction rules
