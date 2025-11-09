@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from app.parser.extractor import parse_pdf_bytes
 import uvicorn
 
-app = FastAPI(title="Kotak Credit Card Parser")
+app = FastAPI(title="Credit Card Statement Parser")
 
 @app.post("/parse")
 async def parse(file: UploadFile = File(...)):
@@ -15,10 +15,15 @@ async def parse(file: UploadFile = File(...)):
     result = parse_pdf_bytes(contents)
 
     bank = result.get("bank", "").upper()
-    if bank != "KOTAK":
-        return JSONResponse(status_code=400, content={"error": "Only Kotak Bank statements are supported."})
+    if bank not in ["KOTAK", "ICICI", "AXIS", "HDFC", "SBI"]:
+        return JSONResponse(
+            status_code=400,
+            content={"error": "Only Kotak, ICICI, Axis, HDFC, and SBI Bank statements are supported."}
+        )
+
 
     return {"success": True, "bank": bank, "fields": result.get("fields")}
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+
